@@ -55,7 +55,7 @@ public final class EditImageViewController: UIViewController {
     public init(image: UIImage, quad: Quadrilateral?, rotateImage: Bool = true, strokeColor: CGColor? = nil) {
         self.image = rotateImage ? image.applyingPortraitOrientation() : image
         self.quad = quad ?? EditImageViewController.defaultQuad(allOfImage: image)
-        self.strokeColor = strokeColor
+        self.strokeColor = UIColor(resource: .primary100).cgColor
         super.init(nibName: nil, bundle: nil)
     }
 

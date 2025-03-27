@@ -23,11 +23,21 @@ final class QuadrilateralView: UIView {
 
     private let quadLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
-        layer.strokeColor = UIColor.white.cgColor
-        layer.lineWidth = 1.0
-        layer.opacity = 1.0
+        layer.strokeColor = UIColor(resource: .primary100).cgColor
+        layer.lineWidth = 1.5
+        layer.opacity = 0.8
         layer.isHidden = true
+        layer.fillColor = UIColor.clear.cgColor
 
+        return layer
+    }()
+
+    private let fillLayer: CAShapeLayer = {
+        let layer = CAShapeLayer()
+        layer.strokeColor = UIColor.clear.cgColor
+        layer.fillColor = UIColor(white: 0.0, alpha: 0.6).cgColor
+        layer.isHidden = true
+        
         return layer
     }()
 
@@ -46,7 +56,7 @@ final class QuadrilateralView: UIView {
     public var editable = false {
         didSet {
             cornerViews(hidden: !editable)
-            quadLayer.fillColor = editable ? UIColor(white: 0.0, alpha: 0.6).cgColor : UIColor(white: 1.0, alpha: 0.5).cgColor
+            fillLayer.isHidden = !editable
             guard let quad else {
                 return
             }
@@ -71,7 +81,9 @@ final class QuadrilateralView: UIView {
             guard oldValue != isHighlighted else {
                 return
             }
-            quadLayer.fillColor = isHighlighted ? UIColor.clear.cgColor : UIColor(white: 0.0, alpha: 0.6).cgColor
+
+            fillLayer.fillColor = isHighlighted ? UIColor.clear.cgColor : UIColor(white: 0.0, alpha: 0.6).cgColor
+
             if isHighlighted {
                 bringSubviewToFront(quadView)
             } else {
@@ -115,6 +127,7 @@ final class QuadrilateralView: UIView {
         setupCornerViews()
         setupConstraints()
         quadView.layer.addSublayer(quadLayer)
+        quadView.layer.addSublayer(fillLayer)
     }
 
     private func setupConstraints() {
@@ -163,22 +176,28 @@ final class QuadrilateralView: UIView {
     }
 
     private func drawQuad(_ quad: Quadrilateral, animated: Bool) {
-        var path = quad.path
-
-        if editable {
-            path = path.reversing()
-            let rectPath = UIBezierPath(rect: bounds)
-            path.append(rectPath)
-        }
-
+        let path = quad.path
+        
         if animated == true {
             let pathAnimation = CABasicAnimation(keyPath: "path")
             pathAnimation.duration = 0.2
             quadLayer.add(pathAnimation, forKey: "path")
+            fillLayer.add(pathAnimation, forKey: "path")
         }
-
+        
         quadLayer.path = path.cgPath
         quadLayer.isHidden = false
+        
+        if editable {
+            // Create fill path that shows the dark overlay with a hole for the quad
+            let fillPath = UIBezierPath(rect: bounds)
+            let quadPathCopy = quad.path.copy() as! UIBezierPath
+            fillPath.append(quadPathCopy.reversing())
+            fillLayer.path = fillPath.cgPath
+            fillLayer.isHidden = false
+        } else {
+            fillLayer.isHidden = true
+        }
     }
 
     private func layoutCornerViews(forQuad quad: Quadrilateral) {
