@@ -71,6 +71,12 @@ public final class CameraScannerViewController: UIViewController {
             toggleFlash()
         }
     }
+    
+    public func reset() {
+        CaptureSession.current.isEditing = false
+        quadView.removeQuadrilateral()
+        captureSessionManager?.start()
+    }
 
     private func setupView() {
         view.backgroundColor = .darkGray
