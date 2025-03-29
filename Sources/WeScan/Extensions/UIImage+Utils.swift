@@ -137,7 +137,7 @@ extension UIImage {
     }
 
     /// Creates a UIImage from the specified CIImage.
-    static func from(ciImage: CIImage) -> UIImage {
+    public static func from(ciImage: CIImage) -> UIImage {
         if let cgImage = CIContext(options: nil).createCGImage(ciImage, from: ciImage.extent) {
             return UIImage(cgImage: cgImage)
         } else {
